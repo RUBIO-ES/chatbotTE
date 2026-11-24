@@ -1,263 +1,205 @@
-Aquí tienes el `README.md` completo en formato Markdown listo para copiar y pegar:
+# 🏍️ MotoGuía
 
-```markdown
-# 🤖 Chat Analyzer Bot
-
-**Chat Analyzer Bot** es un bot de Telegram que utiliza Inteligencia Artificial y Procesamiento de Lenguaje Natural (NLP) para analizar mensajes de texto en español. El bot detecta emociones, toxicidad, intención comunicativa, nivel de ghosting y riesgo de conflicto, **ofreciendo sugerencias sobre cómo responder** a cada mensaje.
-
----
-
-## 📋 Tabla de Contenidos
-
-- [Características](#-características)
-- [Tecnologías Utilizadas](#-tecnologías-utilizadas)
-- [Arquitectura del Proyecto](#-arquitectura-del-proyecto)
-- [Instalación](#-instalación)
-- [Configuración](#-configuración)
-- [Uso](#-uso)
-- [Ejemplos de Mensajes](#-ejemplos-de-mensajes)
-- [Estructura del Proyecto](#-estructura-del-proyecto)
-- [Posibles Mejoras](#-posibles-mejoras)
-- [Licencia](#-licencia)
-- [Contacto](#-contacto)
+Bot de Telegram con **catálogo de motocicletas**: fichas técnicas dinámicas, navegación por marca/categoría, búsqueda, comparador y mantenimiento básico.
 
 ---
 
 ## ✨ Características
 
-| Característica | Descripción |
-|----------------|-------------|
-| 🎭 **Análisis Emocional** | Detecta 7 emociones: positivo, tristeza, enojo, sorpresa, disgusto, miedo, neutral |
-| 🚫 **Detección de Toxicidad** | Identifica lenguaje ofensivo, agresivo o dañino |
-| 🧠 **Clasificación de Intención** | Reconoce 12 intenciones: afecto, reclamo, celos, agresión, ruptura, manipulación, control, desinterés, inseguridad, curiosidad, tristeza, normal |
-| 💔 **Métrica de Ghosting** | Calcula probabilidad de desinterés o distanciamiento (0-95%) |
-| 🔥 **Evaluación de Riesgo** | 3 niveles: 🔴 Alto, 🟡 Medio, 🟢 Bajo |
-| 💬 **Sugerencias de Respuesta** | Te dice **cómo responder** al mensaje que recibiste |
-| 📊 **Interfaz Amigable** | Respuestas formateadas con emojis y barras de progreso |
+| Función | Descripción |
+|---------|-------------|
+| 🏍️ Catálogo navegable | Marca → categoría → modelo → ficha, todo con botones |
+| 📄 Fichas dinámicas | Solo se muestran los campos que tienen dato real, con indicador de cobertura |
+| 🔎 Búsqueda inteligente | Coincidencia por palabras, errores de escritura y categorías ("scooter", "adventure") |
+| ⚖️ Comparador | Contrasta dos motos campo por campo |
+| 📊 Estadísticas | Referencias por marca y categoría, cobertura de datos |
+| 🔧 Mantenimiento | Aceite, filtros, cadena/CVT e intervalos; completados con valores referenciales cuando el modelo no trae datos propios |
+| 📷 Foto por modelo | Al abrir una ficha se envía la imagen de la moto con su atribución y debajo la ficha técnica |
+
+El catálogo contiene **450 referencias de 34 marcas**. **150 modelos tienen ficha técnica con datos reales** (incluida la Yamaha MT-15); el resto se conserva como referencia y se completará agregando líneas en `datos_motos.py`.
 
 ---
 
-## 🛠️ Tecnologías Utilizadas
+## 📁 Estructura del proyecto
 
-| Tecnología | Versión | Propósito |
-|------------|---------|-----------|
-| **Python** | 3.11+ | Lenguaje principal |
-| **pysentimiento** | 0.7.3 | NLP para español (emociones y hate speech) |
-| **Transformers** | 4.6.1+ | Modelos BERT para análisis de texto |
-| **PyTorch** | 2.0+ | Deep learning |
-| **python-telegram-bot** | 20.7 | Framework del bot |
-| **scikit-learn** | - | Utilidades de ML |
-
----
-
-
-
-## 📦 Instalación
-
-### 1. Clonar el repositorio
-
-```bash
-git clone https://github.com/rubisabel00/machine-learning-Bot-telegram.git
-cd chat-analyzer-bot
+```
+machine-learning-Bot-telegram/
+├── bot.py                # Bot de Telegram: catálogo + menú + mantenimiento
+├── datos_motos.py        # Datos técnicos reales (fuente única de verdad)
+├── descargar_imagenes.py # Descarga fotos de referencia desde Wikipedia
+├── limpieza.py           # Borra __pycache__ y archivos temporales
+├── catalogo.json         # Catálogo generado (no editar a mano)
+├── imagenes/             # Fotos por modelo + creditos.json
+├── requirements.txt
+├── .env                  # TELEGRAM_TOKEN (no se sube al repositorio)
+└── README.md
 ```
 
-### 2. Crear entorno virtual (recomendado)
+`catalogo.json` se regenera al iniciar el bot mezclando `CATALOGO_BASE` (bot.py) con `datos_motos.py`. Los modelos nuevos agregados a `CATALOGO_BASE` se incorporan automáticamente sin perder lo que ya exista en el catálogo.
+
+---
+
+## ⚙️ Instalación
 
 ```bash
-# Windows
 python -m venv venv
-venv\Scripts\activate
-
-# Linux/Mac
-python3 -m venv venv
-source venv/bin/activate
-```
-
-### 3. Instalar dependencias
-
-```bash
+venv\Scripts\activate          # Windows
 pip install -r requirements.txt
 ```
 
-**`requirements.txt`:**
-```txt
-python-telegram-bot==20.7
-pysentimiento>=0.7.3
-transformers>=4.6.1
-torch>=2.0.0
-scikit-learn
+### Configuración del token
+
+Crea un archivo `.env` en la misma carpeta:
+
+```
+TELEGRAM_TOKEN=tu_token_de_botfather
 ```
 
----
+El token se obtiene en Telegram con [@BotFather](https://t.me/BotFather) → `/newbot`.
 
-## ⚙️ Configuración
-
-### 1. Crear un bot en Telegram
-
-1. Abre Telegram y busca [@BotFather](https://t.me/BotFather)
-2. Envía el comando: `/newbot`
-3. Elige un nombre para tu bot (ej: `Chat Analyzer Bot`)
-4. Elige un username (ej: `chat_analyzer_bot`)
-5. **Guarda el token** que te entregue BotFather
-
-### 2. Configurar variable de entorno
-
-**Windows (PowerShell):**
-```powershell
-$env:TELEGRAM_TOKEN="tu_token_aqui"
-```
-
-**Windows (CMD):**
-```cmd
-set TELEGRAM_TOKEN=tu_token_aqui
-```
-
-**Linux/Mac:**
-```bash
-export TELEGRAM_TOKEN="tu_token_aqui"
-```
-
-### 3. Ejecutar el bot
+### Ejecutar
 
 ```bash
 python bot.py
 ```
 
-Verás algo como:
+Al iniciar se imprimen las referencias cargadas, cuántas tienen ficha técnica y cuántas fotos hay en `imagenes/`.
+
+Antes de arrancar, el bot consulta `getMe` con 30 segundos de espera. Si no hay red, muestra un diagnóstico en vez de una traza de error.
+
+---
+
+## 📷 Fotos de las motos
+
+Al elegir un modelo, el bot envía la foto como imagen con un pie corto (marca, modelo, categoría y datos clave) y después la ficha técnica completa. En las listas, `📷` marca los modelos con foto, `✅` los que tienen ficha técnica y `▫️` los que solo son referencia. Si un modelo no tiene foto, la ficha indica `📷 Foto: no disponible para este modelo.`
+
+Para descargar las fotos de referencia de todos los modelos con datos:
+
+```bash
+python descargar_imagenes.py
 ```
-🔄 Cargando modelos de pysentimiento...
-✅ Modelos cargados correctamente
-🤖 Bot de análisis de mensajes activo...
-📝 Token configurado: ✅ Sí
-🟢 Bot corriendo... Esperando mensajes
+
+Opciones:
+
+```bash
+python descargar_imagenes.py --limite 10        # solo 10 modelos
+python descargar_imagenes.py --marca Yamaha     # solo una marca
+python descargar_imagenes.py --solo "Yamaha YZF-R1"
+python descargar_imagenes.py --forzar           # reemplaza fotos existentes
+python descargar_imagenes.py --todo             # intenta las 450 referencias
 ```
+
+El script busca el artículo del modelo en Wikipedia (español e inglés), valida que el título corresponda y descarga la imagen principal en `imagenes/`. La atribución (autor y licencia) queda en `imagenes/creditos.json` y el bot la muestra en el pie de la foto.
+
+### Limpiar temporales
+
+```bash
+python limpieza.py            # borra __pycache__, .pyc, .pyo, .tmp, .bak y .old
+python limpieza.py --simular  # muestra qué borraría sin tocar nada
+```
+
+No modifica `catalogo.json`, `imagenes/`, `.env` ni el código fuente.
+
+### Agregar una foto manualmente
+
+Dos formas:
+
+1. **Archivo local**: guarda la imagen como `imagenes/marca_modelo.jpg` (sin tildes, todo en minúsculas y separado por `_`). Ejemplo: `imagenes/honda_xr190l.jpg`.
+2. **URL en los datos**:
+
+```python
+"Honda|XR190L": dict(
+    cc=184,
+    imagen="https://ejemplo.com/xr190l.jpg",
+    imagen_credito="Foto: Autor · Licencia",
+),
+```
+
+Extensiones admitidas: `.jpg`, `.jpeg`, `.png`, `.webp`. Si un modelo no tiene foto, la ficha se envía igual, solo que sin imagen.
 
 ---
 
 ## 🎯 Uso
 
-1. Abre Telegram y busca tu bot por su username
-2. Envía cualquier mensaje de texto al bot
-3. El bot te responderá con un análisis completo del mensaje
-4. **El análisis incluye sugerencias de cómo responder**
+### Menú principal
+
+- **🏍️ Catálogo**: navegación con botones. El número indica referencias por marca; ✅ marca los modelos con ficha completa.
+- **🔎 Buscar**: escribe marca y modelo.
+- **📚 Categorías**: descripción de los tipos de moto.
+- **🔧 Mantenimiento**: datos de servicio de un modelo.
+- **⚖️ Comparar**: dos motos separadas por `|`.
+- **📊 Estadísticas**: cobertura del catálogo.
+
+### Comandos
+
+| Comando | Ejemplo | Qué hace |
+|---------|---------|----------|
+| `/start` | `/start` | Bienvenida y menú |
+| `/menu` | `/menu` | Menú principal |
+| `/catalogo` | `/catalogo` | Navegador de marcas |
+| `/marcas` | `/marcas` | Marcas con cantidad de modelos |
+| `/modelos` | `/modelos Yamaha` | Modelos de una marca |
+| `/tipos` | `/tipos` | Categorías de motocicletas |
+| `/buscar` | `/buscar Yamaha R1` | Ficha de una moto |
+| `/mantenimiento` | `/mantenimiento Yamaha FZ25` | Datos de mantenimiento |
+| `/comparar` | `/comparar Yamaha MT-07 \| Kawasaki Z650` | Comparación |
+| `/estadisticas` | `/estadisticas` | Cobertura y conteos |
+| `/motos` | `/motos` | Vuelve al modo catálogo |
+
+También puedes escribir directamente un modelo (`Yamaha R1`) sin comando.
 
 ---
 
-## 📝 Ejemplos de Mensajes
+## ➕ Cómo agregar o completar una moto
 
-| Mensaje que te envían | Emoción | Intención | Toxicidad | Riesgo | Sugerencia de respuesta |
-|-----------------------|---------|-----------|-----------|--------|------------------------|
-| "te quiero mucho" | Positivo | Afecto | Baja | Bajo | "Yo también te quiero mucho ❤️" |
-| "por qué no me respondes" | Tristeza | Reclamo | Baja | Medio | "Entiendo que te sientes ignorado, no fue mi intención" |
-| "con quién estabas" | Enojo | Celos | Baja | Medio | "No hay nadie más, pero entiendo tu inseguridad" |
-| "eres un idiota" | Enojo | Agresión | Alta | Alto | "Esto se está poniendo feo, hablemos más tarde" |
-| "ok" | Neutral | Desinterés | Baja | Bajo | "¿Estás bien? Parece que no tienes ganas de hablar" |
-| "cómo estás" | Positivo | Curiosidad | Baja | Bajo | "Todo bien, ¿y tú? Cuéntame" |
-| "quiero terminar" | Tristeza | Ruptura | Baja | Medio | "Hablemos esto en persona, es importante" |
-| "estoy triste" | Tristeza | Tristeza | Baja | Bajo | "Estoy aquí para ti. ¿Quieres hablar de lo que pasa?" |
+Todo se edita en `datos_motos.py`. La clave debe coincidir con `Marca|Modelo` del catálogo:
 
-### Ejemplo de respuesta del bot:
-
-```
-💕 *Análisis del mensaje que te enviaron*
-━━━━━━━━━━━━━━━━━━━━━━━━━━
-😊 *Emoción detectada:* Positivo
-🚩 *Toxicidad:* 🟢 Baja
-🧠 *Intención:* Afecto
-💔 *Ghosting:* ░░░░░░░░░░ 0%
-🔥 *Riesgo:* 🟢 Bajo
-━━━━━━━━━━━━━━━━━━━━━━━━━━
-💡 *Qué significa:*
-Está expresando cariño y buenos sentimientos. Quiere acercarse y fortalecer el vínculo.
-
-💬 *Cómo responder:*
-🌸 Corresponde: 'Yo también te quiero mucho ❤️'
-```
-
----
-
-## 📁 Estructura del Proyecto
-
-```
-chat-analyzer-bot/
-│
-├── bot.py                 # Código principal del bot de Telegram
-├── predict.py             # Motor de análisis con IA y reglas
-├── requirements.txt       # Dependencias del proyecto
-├── README.md              # Documentación
-│
-└── models/                # (Opcional) Modelos entrenados personalizados
-    ├── modelo_emociones.pkl
-    ├── modelo_toxicidad.pkl
-    ├── modelo_intencion.pkl
-    └── vectorizer.pkl
+```python
+"Marca|Modelo": dict(
+    cc=249, hp=20.8, rpm=8000, nm=20.1, rpm_nm=6000,
+    kg=151, tanque=14, asiento=795, vel=5,
+    abs=True, precio=12990000, vmax=130, consumo=38,
+    tipo="4T, SOHC, monocilíndrico, 2V",
+    freno_d="Disco Ø282 mm", freno_t="Disco Ø220 mm",
+    extra={
+        "suspension": {"delantera": "...", "trasera": "..."},
+        "mantenimiento": {"aceite_recomendado": "...",
+                          "cantidad_aceite_l": 1.0,
+                          "intervalos": ["Cada 6.000 km"]},
+    },
+),
 ```
 
----
+Notación corta disponible: `cc, hp, rpm, nm, rpm_nm, kg, tanque, asiento, vel, abs, abs_doble, cbs, tc, precio, vmax, consumo, anio, estado, version, tipo, cil, refrig, alim, comp, arranque, freno_d, freno_t, llanta_d, llanta_t, rines`, más `imagen` e `imagen_credito`.
 
-## 🔮 Posibles Mejoras
+Cualquier campo que no escribas aparece simplemente como ausente en la ficha; no se inventan valores. La excepción es **mantenimiento**: si el modelo no trae datos propios, el bot completa aceite, filtros, cadena/CVT e intervalos con valores referenciales según categoría, cilindrada y refrigeración. Esos valores se muestran siempre con la advertencia de confirmarlos en el manual; si escribes datos reales en `datos_motos.py`, estos tienen prioridad.
 
-- [ ] **Modelo personalizado**: Entrenar con dataset propio para mayor precisión
-- [ ] **Soporte multimedia**: Análisis de imágenes, audios y documentos
-- [ ] **Dashboard web**: Visualización de métricas y estadísticas
-- [ ] **API REST**: Exponer funcionalidades como servicio web
-- [ ] **Base de datos**: Almacenamiento anonimizado para análisis longitudinal
-- [ ] **Dockerización**: Contenedor para despliegue en la nube
-- [ ] **Soporte multi-idioma**: Ampliar a inglés, portugués, etc.
-- [ ] **Historial de conversaciones**: Analizar evolución de emociones en el tiempo
+Para que una moto nueva exista primero en el catálogo, agrégala a `CATALOGO_BASE` en `bot.py` (el catálogo se sincroniza al iniciar) y luego completa su ficha en `datos_motos.py`.
 
 ---
 
-## 🤝 Contribuciones
+## 🌐 Si el bot no conecta (`TimedOut`)
 
-Las contribuciones son bienvenidas. Por favor:
+`telegram.error.TimedOut` o `httpx.ConnectTimeout` significan que el programa no logró hablar con `api.telegram.org` a tiempo; casi nunca es un error del código.
 
-1. Fork el proyecto
-2. Crea tu rama de features (`git checkout -b feature/nueva-funcionalidad`)
-3. Commit tus cambios (`git commit -m 'Agrega nueva funcionalidad'`)
-4. Push a la rama (`git push origin feature/nueva-funcionalidad`)
-5. Abre un Pull Request
+El bot ya usa 30 segundos de timeout (el valor por defecto de la librería es 5), hace una comprobación previa y, si falla, reintenta forzando IPv4 (en algunas redes la ruta IPv6 se queda colgada). Si aun así falla:
 
----
-
-## 📄 Licencia
-
-Este proyecto está bajo la licencia MIT. Ver el archivo `LICENSE` para más detalles.
+1. Abre <https://web.telegram.org> en el navegador para confirmar que hay internet.
+2. Desactiva VPN o proxy, o define `HTTPS_PROXY` si tu red los exige.
+3. Permite `python.exe` en el firewall o antivirus.
+4. Prueba con datos móviles para descartar al proveedor de internet.
+5. Comprueba que el reloj de Windows esté en hora automática.
 
 ---
 
-## 📧 Contacto
+## ⚠️ Notas de seguridad
 
-- **Autor**: [Tu nombre]
-- **Email**: [tu@email.com]
-- **GitHub**: [github.com/tuusuario](https://github.com/tuusuario)
-
----
-
-## ⚠️ Notas de Seguridad
-
-- **Nunca** compartas tu token de Telegram públicamente
-- **No subas** el token a repositorios públicos
-- Usa siempre variables de entorno para información sensible
-- Si tu token se expone, revócalo inmediatamente con [@BotFather](https://t.me/BotFather)
+- No compartas el token ni lo escribas en archivos que se suban a Git.
+- `.gitignore` excluye `.env` y `venv`.
+- Si un token ya se publicó, revócalo en [@BotFather](https://t.me/BotFather) y genera uno nuevo.
 
 ---
 
-## 🙏 Agradecimientos
+## 📊 Datos y fuentes
 
-- [pysentimiento](https://github.com/pysentimiento/pysentimiento) - Librería de NLP para español
-- [python-telegram-bot](https://github.com/python-telegram-bot/python-telegram-bot) - Framework del bot
-- [Hugging Face](https://huggingface.co/) - Modelos preentrenados
-
----
-
-## 📊 Estado del Proyecto
-
-![Version](https://img.shields.io/badge/version-1.0.0-blue)
-![Python](https://img.shields.io/badge/python-3.11+-green)
-![License](https://img.shields.io/badge/license-MIT-green)
-
----
-
-**¡Disfruta analizando y mejorando tus conversaciones! 🚀**
-```
+Las especificaciones provienen de fichas de fabricante e importadores. Los precios son aproximados, de referencia del mercado colombiano (fecha de revisión: 2026-11), y pueden variar por año, versión y concesionario. La ficha indica siempre su fuente y su cobertura para que el usuario sepa qué está verificado.
